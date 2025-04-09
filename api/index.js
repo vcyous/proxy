@@ -32,7 +32,7 @@ app.get("/", (req, res) => res.send("Express on Vercel"));
 app.use(
   "/api",
   createProxyMiddleware({
-    target: "http://16.78.69.22:8069/jsonrpc", // Replace with your actual API URL
+    target: "http://16.78.69.22:8070/jsonrpc", // Replace with your actual API URL
     changeOrigin: true,
     onProxyRes(proxyRes, req, res) {
       // Modify response headers for OPTIONS requests
