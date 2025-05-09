@@ -7,7 +7,11 @@ const app = express();
 // Enable CORS for all routes (to handle OPTIONS requests)
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://asri-webapps.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "http://16.78.182.248",
+      "https://asri-webapps.vercel.app",
+    ],
     credentials: true,
   })
 );
@@ -39,6 +43,24 @@ app.use(
         // proxyReq.headers["Access-Control-Allow-Credentials"] = "true";
       },
       proxyRes: (proxyRes, req, res) => {
+        const cookies = proxyRes.headers["set-cookie"];
+        if (cookies) {
+          const modifiedCookies = cookies.map((cookie) => {
+            // Remove existing SameSite if present
+            let newCookie = cookie.replace(/; ?SameSite=[^;]+/i, "");
+
+            // Append SameSite=None and Secure (Secure is required for SameSite=None)
+            if (!/; ?Secure/i.test(newCookie)) {
+              newCookie += "; Secure";
+            }
+            newCookie += "; SameSite=None";
+
+            return newCookie;
+          });
+
+          // Overwrite the Set-Cookie header
+          proxyRes.headers["set-cookie"] = modifiedCookies;
+        }
         // res.header("Access-Control-Allow-Origin", "http://localhost:5173");
         res.header(
           "Access-Control-Allow-Methods",
